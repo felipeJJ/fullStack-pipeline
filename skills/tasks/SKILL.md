@@ -19,7 +19,10 @@ Local-first registry: fast to search, human-readable plans, no digging through `
 | `tdd-red <id>` / `tdd-skip <id> --reason="..."` | Confirm failing tests exist / justify absence — unblocks the TDD guard |
 | `ready <id>` | Checklist done, cleared to commit — unblocks the commit gate |
 | `done <id> --commit=<hash>` | Close task (the post-commit hook usually does this) |
-| `note <id> "<text>"` | Append a timestamped note (decisions, rework counts) |
+| `note <id> "<text>"` | Append a timestamped note (decisions, context) |
+| `rework <id> --area=X --reason="..."` | Record a review rejection / rework attempt (telemetry + attempt limit) |
+| `usage <id> --json='[{"model":"sonnet","input":N,"output":N}]'` | Attach token usage per model (from OTel or /cost) for cost estimation |
+| `report [--since=YYYY-MM-DD]` | Per-task wall time / attempts / est. cost + aggregation **per model matrix** (the A/B cost-comparison view) |
 | `index` | Regenerate `INDEX.md` (auto-run by mutating commands) |
 
 ## Layout

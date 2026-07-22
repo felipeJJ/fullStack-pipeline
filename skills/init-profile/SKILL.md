@@ -53,10 +53,11 @@ Creates the per-project contract that makes the pipeline portable: `.claude/pipe
   },
   "testPillar": "e2e",
   "models": {
-    "tester":   { "1-2": "haiku",  "3-4": "sonnet", "5": "sonnet" },
+    "tester":   { "1-2": { "model": "haiku", "effort": "low" }, "3-4": "sonnet", "5": "sonnet" },
     "dev":      { "1-2": "sonnet", "3-4": "sonnet", "5": "opus" },
     "reviewer": { "1-2": "sonnet", "3-4": "opus",   "5": "opus" }
   },
+  "prices": null,
   "tdd": { "mode": "strict", "exempt": ["**/*.md", "**/*.json", "**/migrations/**"] },
   "branch": { "perTask": true, "minLevel": 3, "pattern": "feat/task-{id}" },
   "commit": { "mode": "strict", "format": "conventional", "requireTaskRef": true, "language": "en" },
@@ -68,5 +69,7 @@ Creates the per-project contract that makes the pipeline portable: `.claude/pipe
 ```
 
 The preset only *fills* the interview's defaults — the written profile is always fully explicit, so any knob can later be changed by editing the JSON or re-running this skill. `tdd.mode` and the commit gate accept `strict` (block), `advisory` (warn, allow), `off`.
+
+Matrix cells accept a model name or `{"model": ..., "effort": "low|medium|high"}` — effort is often a bigger saving than a tier swap for mechanical roles. `prices` (optional) overrides the CLI's built-in per-Mtok price table used by `task-cli report` for cost estimation; `null` keeps the defaults.
 
 `notes` per area is free text injected into tester/dev prompts — use it for stack conventions ("CommonJS only", "TailwindCSS only") or point it at a project rules skill.

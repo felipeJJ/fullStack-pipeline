@@ -8,6 +8,8 @@ It was not designed on a whiteboard. It was extracted from months of daily use b
 
 Every "non-negotiable" process rule that agents kept skipping when the context grew long — tests before code, every commit registered, review before merge — is enforced here by hooks that **block the action**, not by prose that asks nicely.
 
+And since v0.3 the pipeline **measures itself**: every task records which model matrix ran it, how many rework cycles it took, how long it lasted, and what it cost — so questions like "do cheaper testers actually save money?" are answered by `task-cli report`, not by intuition. See [Telemetry & cost reporting](#telemetry--cost-reporting).
+
 ---
 
 ## Table of contents
@@ -19,6 +21,7 @@ Every "non-negotiable" process rule that agents kept skipping when the context g
 - [Task registry](#task-registry)
 - [Complexity ratchet](#complexity-ratchet)
 - [Customization](#customization)
+- [Telemetry & cost reporting](#telemetry--cost-reporting)
 - [Install & quickstart](#install--quickstart)
 - [Design decisions](#design-decisions)
 - [Layout](#layout)
@@ -147,6 +150,8 @@ node <cliPath> new "Add customer export" --type=improvement --level=3
 node <cliPath> search "export"        # titles + full plan contents
 node <cliPath> list --status=done
 node <cliPath> show 7
+node <cliPath> rework 7 --area=backend --reason="contract mismatch"   # review rejection
+node <cliPath> report                 # wall time / attempts / cost, grouped per model matrix
 ```
 
 The lifecycle states double as the hooks' state machine: `planned → in-progress → ready → done`, with the TDD state (`pending → red | skipped+reason`) gating production edits. Whether the registry is git-versioned or local-only is a profile choice.
@@ -183,6 +188,20 @@ Key knobs:
 - **`language`** — user interaction vs code/comments vs product-facing strings (they often differ; all three are injected into agent prompts).
 
 Full annotated schema in [`skills/init-profile/SKILL.md`](skills/init-profile/SKILL.md).
+
+## Telemetry & cost reporting
+
+The registry doubles as a process-metrics store, so "does the model matrix actually save money?" is answered with data instead of intuition:
+
+- `task-cli start` snapshots which matrix cells (model + effort per role) applied to the task.
+- Every review rejection is recorded (`task-cli rework`) — attempts feed both the rework limit and the report.
+- Wall time comes from the `start`/`done` timestamps; the commit hash links cost to code.
+- Token usage per model can be attached (`task-cli usage --json=...`); the report prices it with a built-in per-Mtok table (overridable via `profile.prices`).
+- `task-cli report` prints per-task wall time / attempts / estimated cost, **aggregated per matrix signature** — run the same tasks under two matrices (e.g. all-opus vs tiered) from the same base commit and the report is your A/B comparison.
+
+For exact token counts per model, enable Claude Code's OpenTelemetry metrics export (see the official docs on monitoring — token usage is emitted per model) and feed the totals into `task-cli usage`. Without OTel the report still gives wall time, attempts, and matrix comparisons; cost columns just stay empty.
+
+The economics being measured: dropping mechanical roles a tier (tester on Haiku, devs on Sonnet, reviewer kept strong) cuts a typical multi-agent task's token cost by roughly 40% — **but one full rework cycle caused by a weaker dev eats most of that saving**. The report exists to find each project's break-even.
 
 ## Install & quickstart
 
@@ -241,6 +260,7 @@ scripts/
 
 - **v0.1** — extracted architecture: skills, agents, hooks, registry, ratchet.
 - **v0.2** — customization layer: presets, model matrix, gate modes, branch/commit/language policies.
+- **v0.3** — telemetry: matrix snapshots, rework/attempt tracking, usage-based cost estimation, `report` with per-matrix A/B aggregation; matrix cells accept per-role effort.
 - **Next** — field validation: real level-3 tasks on live projects, tightening the skill wording against observed failures; a second project with a different area shape; marketplace listing.
 
 ## License
