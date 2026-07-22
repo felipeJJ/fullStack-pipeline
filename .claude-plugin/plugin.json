@@ -1,0 +1,7 @@
+{
+  "name": "fullStack-pipeline",
+  "description": "Multi-agent TDD development pipeline: discovery, planning, red tests, implementation, review with complexity ratchet, and a local task registry. Portable across projects via a per-project profile.",
+  "version": "0.1.0",
+  "author": { "name": "Jorge Gobbi" },
+  "license": "MIT"
+}
