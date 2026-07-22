@@ -41,6 +41,17 @@ scripts/task-cli.js           local registry (tasks.json + plans/ + INDEX.md)
 scripts/complexity-check.js   dependency-free complexity ratchet
 ```
 
+## Customization
+
+Everything lives in the per-project `.claude/pipeline/profile.json`, seeded by the `init-profile` interview from a **preset** (`strict` / `balanced` / `prototype`) and always written fully explicit:
+
+- **Model matrix** — which model each role (tester/dev/reviewer) uses per level band (1-2, 3-4, 5); the main cost knob.
+- **`tdd.mode`** — `strict` (guard blocks), `advisory` (warns), `off`; plus `tdd.exempt` globs (docs, config, migrations).
+- **`commit`** — gate mode, message format (`conventional`), required task reference, message language.
+- **`branch`** — per-task branches from level N with a naming pattern.
+- **`rework`** — attempt limit before escalating to the user; incremental review on level 5.
+- **`language`** — user interaction vs code/comments vs product-facing strings (they often differ).
+
 ## Escape hatch
 
 `PIPELINE_SKIP_GATE=1 git commit ...` bypasses the commit gate for genuinely exceptional commits; register them retroactively (`tasks` skill).

@@ -11,21 +11,30 @@ const dir = projectDir(input);
 const pipeline = loadPipeline(dir);
 if (!pipeline) process.exit(0); // project has not opted in
 
+const tddConfig = pipeline.profile.tdd || {};
+const mode = tddConfig.mode || 'strict'; // strict | advisory | off
+if (mode === 'off') process.exit(0);
+
 const active = pipeline.tasks.find((t) => t.status === 'in-progress');
 if (!active || active.tdd !== 'pending') process.exit(0);
 
 const filePath = input.tool_input && input.tool_input.file_path;
 if (!filePath) process.exit(0);
 const rel = path.relative(dir, path.resolve(dir, filePath)).replace(/\\/g, '/');
+if (matchesAny(rel, tddConfig.exempt)) process.exit(0); // docs/config/migrations etc.
 
 for (const [areaName, area] of Object.entries(pipeline.profile.areas || {})) {
   if (matchesAny(rel, area.tests)) process.exit(0); // test files are always allowed
   if (matchesAny(rel, area.src)) {
-    block(
+    const message =
       `TDD guard: TASK-${active.id} is in progress but red tests are not confirmed yet ` +
       `(area: ${areaName}, file: ${rel}). Write the failing tests first, validate them, then run ` +
-      `task-cli tdd-red ${active.id} (or tdd-skip with a recorded reason).`
-    );
+      `task-cli tdd-red ${active.id} (or tdd-skip with a recorded reason).`;
+    if (mode === 'advisory') {
+      console.error(`[advisory] ${message}`);
+      process.exit(0);
+    }
+    block(message);
   }
 }
 process.exit(0);

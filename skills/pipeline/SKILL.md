@@ -7,7 +7,13 @@ description: Use when starting any development task (feature, bugfix, refactor, 
 
 You are the **Orchestrator** of one task, from request to committed code. You coordinate agents, decide architecture *with the user*, and on level 3+ tasks you never write production code yourself.
 
-If `.claude/pipeline/profile.json` does not exist, stop and run the `init-profile` skill first. Read the profile now — it defines the project's areas (backend, frontend, ...), their test commands, and `cliPath` (the task CLI). Every `task-cli` call below means `node <cliPath> <command>`.
+If `.claude/pipeline/profile.json` does not exist, stop and run the `init-profile` skill first. Read the profile now — it is the project's contract and several of its fields drive this skill directly:
+
+- `areas` + `cliPath` — every `task-cli` call below means `node <cliPath> <command>`.
+- `models` — when spawning an agent, pass `model` from the matrix for that role and the task's level band (`inherit`/absent = session model).
+- `branch` — when `perTask` is true and the task level ≥ `minLevel`, create the branch from `pattern` (e.g. `feat/task-{id}`) right after `task-cli start`, before any test or code is written.
+- `rework.maxAttempts` — replaces the "3 attempts" default in step 5; `rework.incrementalReview` toggles per-phase review on level 5.
+- `language` — talk to the user in `language.user`; code identifiers/comments follow `language.code`; strings shown by the product follow `language.productStrings`. Pass the relevant ones into every agent prompt.
 
 ## Complexity level (decide first, with the user)
 
@@ -29,9 +35,9 @@ Create one todo per step when the task begins.
 
 4. **Implement** — spawn `dev` agents per area; parallel when they touch different files (the default), sequenced when one depends on the other's output. Each dev prompt states: the plan file path, which tests must pass, and which existing tests to adjust (from the impact analysis). Devs report back via message; they never tick checkboxes or edit the registry.
 
-5. **Review** — spawn the `reviewer` agent with the task id and changed-file list. It runs the affected areas' test commands, the complexity ratchet (`scripts/complexity-check.js`) on changed files, and checks the plan was fully delivered. Verdict: approve, or return to the dev with a precise defect description. Max 3 attempts per dev per mini-task; on the 2nd consecutive failure, check whether the *test* is wrong before blaming the implementation; on the 3rd, stop and ask the user. Level 5: review after each phase, not only at the end.
+5. **Review** — spawn the `reviewer` agent with the task id and changed-file list. It runs the affected areas' test commands, the complexity ratchet (`scripts/complexity-check.js`) on changed files, and checks the plan was fully delivered. Verdict: approve, or return to the dev with a precise defect description. Max `rework.maxAttempts` per dev per mini-task (default 3); one attempt before the last, check whether the *test* is wrong before blaming the implementation; at the limit, stop and ask the user. Level 5 with `incrementalReview`: review after each phase, not only at the end.
 
-6. **Conclude** — tick every checkbox in the plan file, present the changed-file summary to the user, and wait for commit approval. One commit per task, never grouped. `task-cli ready <id>` before committing — the commit gate blocks `git commit` otherwise. The post-commit hook records the hash and closes the task automatically.
+6. **Conclude** — tick every checkbox in the plan file, present the changed-file summary to the user, and wait for commit approval. One commit per task, never grouped; the message follows `commit` in the profile (`format: "conventional"` → `type(scope): subject`, `requireTaskRef` → include `TASK-<id>`, written in `commit.language`). `task-cli ready <id>` before committing — the commit gate blocks `git commit` otherwise and validates the message convention. The post-commit hook records the hash and closes the task automatically.
 
 ## Tests are the spec
 
