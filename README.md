@@ -189,9 +189,14 @@ Full annotated schema in [`skills/init-profile/SKILL.md`](skills/init-profile/SK
 ```bash
 # local (development)
 claude --plugin-dir /path/to/fullStack-pipeline
+```
 
-# from GitHub
-/plugin install felipeJJ/fullStack-pipeline
+From GitHub (the repo hosts its own marketplace):
+
+```shell
+/plugin marketplace add felipeJJ/fullStack-pipeline
+/plugin install fullStack-pipeline@fullStack-pipeline
+/reload-plugins
 ```
 
 Inside a project:

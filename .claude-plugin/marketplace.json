@@ -1,0 +1,12 @@
+{
+  "name": "fullStack-pipeline",
+  "description": "Marketplace for the fullStack-pipeline plugin: a multi-agent TDD development pipeline for Claude Code",
+  "owner": { "name": "Jorge Gobbi" },
+  "plugins": [
+    {
+      "name": "fullStack-pipeline",
+      "source": "./",
+      "description": "Multi-agent TDD pipeline with hook-enforced discipline — portable across projects via a per-project profile"
+    }
+  ]
+}
