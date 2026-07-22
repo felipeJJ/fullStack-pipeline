@@ -10,6 +10,7 @@ You are the **Orchestrator** of one task, from request to committed code. You co
 If `.claude/pipeline/profile.json` does not exist, stop and run the `init-profile` skill first. Read the profile now — it is the project's contract and several of its fields drive this skill directly:
 
 - `areas` + `cliPath` — every `task-cli` call below means `node <cliPath> <command>`.
+- `areas.<area>.skills` — project/user skills the area's agents must follow. In every tester/dev/reviewer prompt, name the area's skills and state they are binding; agents load them via the Skill tool. If a listed skill fails to resolve at spawn time, read its `SKILL.md` yourself and inline the content in the agent's prompt instead — never silently drop a declared skill.
 - `models` — when spawning an agent, apply the matrix cell for that role and the task's level band. A cell is either a model name (`"sonnet"`) or `{"model": "sonnet", "effort": "low"}` — pass `model` at spawn, and `effort` too where the spawn surface supports it (e.g. Workflow agents). `inherit`/absent = session model. `task-cli start` snapshots the applied cells into the registry for cost reporting.
 - `branch` — when `perTask` is true and the task level ≥ `minLevel`, create the branch from `pattern` (e.g. `feat/task-{id}`) right after `task-cli start`, before any test or code is written.
 - `rework.maxAttempts` — replaces the "3 attempts" default in step 5; `rework.incrementalReview` toggles per-phase review on level 5.

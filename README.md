@@ -21,6 +21,7 @@ And since v0.3 the pipeline **measures itself**: every task records which model 
 - [Task registry](#task-registry)
 - [Complexity ratchet](#complexity-ratchet)
 - [Customization](#customization)
+- [Extending with your own skills](#extending-with-your-own-skills)
 - [Telemetry & cost reporting](#telemetry--cost-reporting)
 - [Install & quickstart](#install--quickstart)
 - [Design decisions](#design-decisions)
@@ -189,6 +190,25 @@ Key knobs:
 
 Full annotated schema in [`skills/init-profile/SKILL.md`](skills/init-profile/SKILL.md).
 
+## Extending with your own skills
+
+**Don't add skills inside the installed plugin** — the install is a cached clone that gets overwritten on every update. Extension happens from the outside, and the boundary is deliberate: the plugin carries the *process*, your project carries the *conventions*.
+
+Two supported paths:
+
+1. **Plain composition.** Skills in your project (`.claude/skills/<name>/SKILL.md`) or user directory (`~/.claude/skills/`) load alongside the plugin's skills in every session — nothing to configure. Good for skills *you* invoke.
+2. **Profile-declared skills (the pipeline-aware path).** List skills per area in the profile and the pipeline's *agents* follow them:
+
+   ```json
+   "areas": {
+     "backend": { "skills": ["backend-rules", "security-checklist"], ... }
+   }
+   ```
+
+   Testers and devs load the declared skills before writing anything; the reviewer treats violations of a declared skill as a rejection. If a skill can't be resolved at spawn time, the orchestrator inlines its `SKILL.md` content into the agent prompt — a declared skill is never silently dropped. This is where code-rules skills, security checklists, and domain conventions belong.
+
+Teams that want skills *inside* the plugin's namespace can fork the repo (it's its own marketplace) and install from the fork — at the cost of rebasing on updates. For almost every case, path 2 is the better answer.
+
 ## Telemetry & cost reporting
 
 The registry doubles as a process-metrics store, so "does the model matrix actually save money?" is answered with data instead of intuition:
@@ -261,6 +281,7 @@ scripts/
 - **v0.1** — extracted architecture: skills, agents, hooks, registry, ratchet.
 - **v0.2** — customization layer: presets, model matrix, gate modes, branch/commit/language policies.
 - **v0.3** — telemetry: matrix snapshots, rework/attempt tracking, usage-based cost estimation, `report` with per-matrix A/B aggregation; matrix cells accept per-role effort.
+- **v0.4** — extensibility: per-area `skills` in the profile; pipeline agents load declared project/user skills (Skill tool) and the reviewer enforces them.
 - **Next** — field validation: real level-3 tasks on live projects, tightening the skill wording against observed failures; a second project with a different area shape; marketplace listing.
 
 ## License

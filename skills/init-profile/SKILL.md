@@ -48,6 +48,7 @@ Creates the per-project contract that makes the pipeline portable: `.claude/pipe
       "src": ["backend/src/**"],
       "tests": ["backend/tests/**"],
       "testCommand": "cd backend && npm test",
+      "skills": ["backend-rules"],
       "notes": "integration tests are the business-rule layer"
     }
   },
@@ -72,4 +73,6 @@ The preset only *fills* the interview's defaults — the written profile is alwa
 
 Matrix cells accept a model name or `{"model": ..., "effort": "low|medium|high"}` — effort is often a bigger saving than a tier swap for mechanical roles. `prices` (optional) overrides the CLI's built-in per-Mtok price table used by `task-cli report` for cost estimation; `null` keeps the defaults.
 
-`notes` per area is free text injected into tester/dev prompts — use it for stack conventions ("CommonJS only", "TailwindCSS only") or point it at a project rules skill.
+`notes` per area is free text injected into tester/dev prompts — use it for short stack conventions ("CommonJS only", "TailwindCSS only").
+
+`skills` per area is the **extension point**: names of project or user skills (`.claude/skills/<name>/` or `~/.claude/skills/<name>/`) that pipeline agents must load before working — the place for code-rules skills, security checklists, domain conventions. During detection (step 1), list the project's existing skills and offer to link the relevant ones to each area. This keeps the boundary clean: the plugin carries the process, the project carries the conventions, and the profile says where to find them.
