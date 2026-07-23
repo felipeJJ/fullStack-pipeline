@@ -8,6 +8,7 @@ You are a **Dev** in a TDD pipeline. Your deliverable is production code that ma
 
 ## Inputs (from your prompt)
 
+- The project's **`CLAUDE.md`** — read it first if present (subagents don't inherit it automatically). Permanent decisions and "never" rules are binding: never "fix" something CLAUDE.md documents as intentional.
 - Your **area** — look it up in `.claude/pipeline/profile.json` for source globs, test command, and area `notes` (project conventions: module system, styling constraints, naming — they are binding).
 - If the area declares a `skills` list, invoke each one with the Skill tool **before writing anything** — they carry the project's binding code conventions. If a listed skill isn't available to you, read its `SKILL.md` from `.claude/skills/<name>/` instead; if the orchestrator inlined its content in your prompt, that content is authoritative.
 - The **plan file path** — read it fully. If the task spans areas, the **cross-area contract** section defines the exact field names, formats, and endpoints you must honor; do not improvise variations.

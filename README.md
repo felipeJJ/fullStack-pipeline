@@ -240,7 +240,7 @@ From GitHub (the repo hosts its own marketplace):
 
 Inside a project:
 
-1. Run the **`init-profile`** skill once — it inspects the repo (areas, test scripts, lint setup), interviews you for the rest, writes the profile, and baselines the complexity distribution.
+1. Run the **`init-profile`** skill once — it inspects the repo (areas, test scripts, lint setup), interviews you for the rest, writes the profile, and baselines the complexity distribution. It also ensures the project has a **`CLAUDE.md`** (generating one through a short interview if missing) — the pipeline treats it as a prerequisite, because plans and agents are only as good as the project context they read: product overview, domain glossary, permanent decisions, "never" rules. Pipeline agents read it explicitly at spawn, since subagents don't inherit it automatically.
 2. Start any task with the **`pipeline`** skill and describe what you want.
 3. Look things up anytime with the **`tasks`** skill ("what's open?", "find the task that touched exports").
 
@@ -282,6 +282,7 @@ scripts/
 - **v0.2** — customization layer: presets, model matrix, gate modes, branch/commit/language policies.
 - **v0.3** — telemetry: matrix snapshots, rework/attempt tracking, usage-based cost estimation, `report` with per-matrix A/B aggregation; matrix cells accept per-role effort.
 - **v0.4** — extensibility: per-area `skills` in the profile; pipeline agents load declared project/user skills (Skill tool) and the reviewer enforces them.
+- **v0.5** — project context: CLAUDE.md as a pipeline prerequisite — init-profile generates/audits it, the orchestrator blocks planning without it, agents read it at spawn, and the reviewer enforces its permanent decisions and "never" rules.
 - **Next** — field validation: real level-3 tasks on live projects, tightening the skill wording against observed failures; a second project with a different area shape; marketplace listing.
 
 ## License

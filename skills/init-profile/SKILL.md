@@ -11,6 +11,19 @@ Creates the per-project contract that makes the pipeline portable: `.claude/pipe
 
 1. **Detect before asking.** Inspect the repo: top-level dirs with their own `package.json` (candidate areas), test scripts in each `package.json`, existing ESLint config, existing E2E setup (cypress/playwright dirs). Build a proposed profile from evidence.
 
+1.5. **Ensure a CLAUDE.md exists.** The pipeline depends on it: plans and agents are only as good as the project context they read. Check the repo root:
+   - **Missing** → tell the user it's a prerequisite and offer (AskUserQuestion): (a) generate it now through a short interview (recommended — use the template below), (b) run Claude Code's `/init` generator and then trim it to the template's shape, or (c) skip for now — record the gap and warn that plans will be generic until it exists.
+   - **Present** → skim it. If it lacks a product overview, permanent decisions, or a "never" list, suggest (don't impose) filling those gaps.
+
+   **The "Never" question is mandatory in the interview** (and whenever an existing CLAUDE.md has no Never section): ask the user directly, in their own words, which things agents must **never** do in this project — the one section that cannot be inferred from code, only from the owner. Prime with examples of the genre: *"never hard-delete — always soft delete"*, *"never commit/push without my explicit approval"*, *"never install new styling libraries"*, *"never touch production data"*. Use AskUserQuestion (free text via "Other" is fine) or a direct question; accept one item or many. Record the answers **verbatim** as bullets under `## Never` — don't soften or paraphrase them; their bluntness is what makes agents respect them. These rules are enforced downstream: agents treat them as binding and the reviewer rejects violations.
+
+   Template — keep it lean, agents read it whole:
+   - **Overview**: what the product is, who uses it, the 5-line architecture (stack per area, deploy).
+   - **Domain glossary**: terms that mean something specific in this product (the entries a newcomer would get wrong).
+   - **Permanent decisions**: intentional choices an agent must not "fix" (with the why).
+   - **Never**: the hard rules (things that look like improvements but are forbidden).
+   - **Pointers**: links to deeper docs *with when-to-read guidance* (e.g. "touching payments → read docs/billing.md") — pointers keep CLAUDE.md small while making depth discoverable.
+
 2. **Interview with AskUserQuestion** (batch, max 4 per call) only for what detection cannot decide. First question is always the **preset** — it fills every default below, and the remaining questions only cover the areas and whatever the user wants to deviate:
 
    | Preset | Intent | Defaults |

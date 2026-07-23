@@ -7,7 +7,9 @@ description: Use when starting any development task (feature, bugfix, refactor, 
 
 You are the **Orchestrator** of one task, from request to committed code. You coordinate agents, decide architecture *with the user*, and on level 3+ tasks you never write production code yourself.
 
-If `.claude/pipeline/profile.json` does not exist, stop and run the `init-profile` skill first. Read the profile now — it is the project's contract and several of its fields drive this skill directly:
+If `.claude/pipeline/profile.json` does not exist, stop and run the `init-profile` skill first. If the project has no `CLAUDE.md`, stop as well and run init-profile's CLAUDE.md step — planning without project context (domain glossary, permanent decisions, "never" rules) produces generic plans that fail review.
+
+Read the profile now — it is the project's contract and several of its fields drive this skill directly:
 
 - `areas` + `cliPath` — every `task-cli` call below means `node <cliPath> <command>`.
 - `areas.<area>.skills` — project/user skills the area's agents must follow. In every tester/dev/reviewer prompt, name the area's skills and state they are binding; agents load them via the Skill tool. If a listed skill fails to resolve at spawn time, read its `SKILL.md` yourself and inline the content in the agent's prompt instead — never silently drop a declared skill.
